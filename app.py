@@ -7,36 +7,20 @@ from collections import Counter
 import streamlit as st
 import pandas as pd
 import joblib
+# ============================================================ # PAGE CONFIGURATION # ========================================================
+st.set_page_config(page_title="SafeLink AI", page_icon="🛡️", layout="wide")
 
+# # ============================================================ # PROJECT PATH # ============================================================ 
+BASE_DIR = Path(__file__).resolve().parent 
 
-# ============================================================
-# PAGE CONFIGURATION
-# ============================================================
-
-st.set_page_config(
-    page_title="SafeLink AI",
-    page_icon="🛡️",
-    layout="wide"
-)
-
-
-# ============================================================
-# PROJECT PATH
-# ============================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-
-# ============================================================
+## ============================================================
 # GOOGLE LOGIN PAGE
-# ============================================================
-
+# # ============================================================
 def show_login_page():
 
-    st.markdown(
-        """
+    if hasattr(st, "html"):
+        st.html("""
         <style>
-
         .login-container {
             max-width: 500px;
             margin: 90px auto 20px auto;
@@ -63,55 +47,80 @@ def show_login_page():
             font-size: 16px;
             line-height: 1.6;
             margin-top: 10px;
-            margin-bottom: 25px;
         }
-
         </style>
-        """,
-        unsafe_allow_html=True
-    )
 
-    st.markdown(
-        """
         <div class="login-container">
-
             <div class="login-icon">🛡️</div>
-
-            <div class="login-title">
-                SafeLink AI
-            </div>
-
+            <div class="login-title">SafeLink AI</div>
             <div class="login-subtitle">
                 <b>AI-Powered Security Scanner</b>
+                <br><br>
+                Check suspicious URLs and messages
                 <br>
-                Detect suspicious URLs and messages
-                <br>
-                using machine learning.
+                with machine learning.
             </div>
-
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """)
 
-    # Check whether current Streamlit supports login
+    else:
+        st.markdown("""
+        <style>
+        .login-container {
+            max-width: 500px;
+            margin: 90px auto 20px auto;
+            padding: 45px 35px;
+            text-align: center;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+
+        .login-icon { font-size: 60px; margin-bottom: 10px; }
+
+        .login-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        </style>
+
+        <div class="login-container">
+            <div class="login-icon">🛡️</div>
+            <div class="login-title">SafeLink AI</div>
+            <div class="login-subtitle">
+                <b>AI-Powered Security Scanner</b>
+                <br><br>
+                Check suspicious URLs and messages
+                <br>
+                with machine learning.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     if not hasattr(st, "login"):
-
         st.error(
             "Google Login is not available in your current Streamlit version."
         )
-
         st.info(
             "Run: python -m pip install --upgrade streamlit authlib"
         )
-
         st.stop()
 
     if st.button(
         "🔐 Continue with Google",
-        use_container_width=True
+        use_container_width=True,
+        key="google_login_button"
     ):
         st.login()
+
 
 
 # ============================================================
@@ -121,10 +130,9 @@ def show_login_page():
 # getattr prevents the AttributeError when the authentication
 # information is not available.
 
-is_logged_in = getattr(
-    st.user,
-    "is_logged_in",
-    False
+user_info = getattr(st, "user", None)
+is_logged_in = bool(
+    getattr(user_info, "is_logged_in", False)
 )
 
 
@@ -548,16 +556,17 @@ with header_col2:
 # USER NAME
 # ============================================================
 
+user_info = getattr(st, "user", None)
+
 user_name = getattr(
-    st.user,
+    user_info,
     "name",
     None
 )
 
 if not user_name:
-
     user_name = getattr(
-        st.user,
+        user_info,
         "email",
         "User"
     )
@@ -1104,4 +1113,4 @@ st.divider()
 
 st.caption(
     "SafeLink AI | Machine Learning based URL & Message Security Analysis"
-)
+)      
