@@ -21,40 +21,47 @@ BASE_DIR = Path(__file__).resolve().parent
 # ============================================================
 # GOOGLE LOGIN PAGE
 # ============================================================
+import textwrap
+
+
 def show_login_page():
-    # Outer card layout using columns
-    _, center_col, _ = st.columns([1, 2, 1])
+    html_code = textwrap.dedent("""
+        <style>
+        .login-container {
+            max-width: 500px;
+            margin: 40px auto 20px auto;
+            padding: 40px 30px;
+            text-align: center;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            font-family: sans-serif;
+        }
+        .login-icon { font-size: 60px; margin-bottom: 10px; }
+        .login-title { font-size: 34px; font-weight: 700; color: #1e293b; }
+        .login-subtitle { color: #64748b; font-size: 16px; line-height: 1.6; margin-top: 10px; }
+        </style>
 
-    with center_col:
-        with st.container(border=True):
-            st.markdown(
-                "<h1 style='text-align: center; font-size: 60px; margin-bottom: 0;'>🛡️</h1>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                "<h2 style='text-align: center; color: #1e293b; margin-top: 0;'>SafeLink AI</h2>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                "<p style='text-align: center; color: #64748b; font-size: 16px;'>"
-                "<b>AI-Powered Security Scanner</b><br><br>"
-                "Detect suspicious URLs and messages<br>using machine learning."
-                "</p>",
-                unsafe_allow_html=True,
-            )
-            st.write("")
+        <div class="login-container">
+            <div class="login-icon">🛡️</div>
+            <div class="login-title">SafeLink AI</div>
+            <div class="login-subtitle">
+                <b>AI-Powered Security Scanner</b><br><br>
+                Check suspicious URLs and messages<br>
+                with machine learning.
+            </div>
+        </div>
+    """)
 
-            if not hasattr(st, "login"):
-                st.error("Google Login is not available in your current Streamlit version.")
-                st.info("Run: python -m pip install --upgrade streamlit authlib")
-                st.stop()
+    st.markdown(html_code, unsafe_allow_html=True)
 
-            if st.button(
-                "🔐 Continue with Google",
-                use_container_width=True,
-                key="google_login_button",
-            ):
-                st.login()
+    if not hasattr(st, "login"):
+        st.error("Google Login is not available in your current Streamlit version.")
+        st.info("Run: python -m pip install --upgrade streamlit authlib")
+        st.stop()
+
+    if st.button("🔐 Continue with Google", use_container_width=True, key="google_login_button"):
+        st.login()
 
 # ============================================================
 # LOGIN CHECK
