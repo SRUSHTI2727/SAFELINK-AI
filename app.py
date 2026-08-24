@@ -19,59 +19,72 @@ st.set_page_config(page_title="SafeLink AI", page_icon="🛡️", layout="wide")
 BASE_DIR = Path(__file__).resolve().parent 
 
 # ============================================================
-# GOOGLE LOGIN PAGE
+# GOOGLE LOGIN
 # ============================================================
-import textwrap
-
 
 def show_login_page():
-    html_code = textwrap.dedent("""
+
+    st.markdown("""
         <style>
         .login-container {
             max-width: 500px;
-            margin: 40px auto 20px auto;
-            padding: 40px 30px;
+            margin: 70px auto 30px auto;
+            padding: 45px 35px;
             text-align: center;
             background: white;
-            border-radius: 18px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
-            font-family: sans-serif;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.10);
         }
-        .login-icon { font-size: 60px; margin-bottom: 10px; }
-        .login-title { font-size: 34px; font-weight: 700; color: #1e293b; }
-        .login-subtitle { color: #64748b; font-size: 16px; line-height: 1.6; margin-top: 10px; }
+
+        .login-icon {
+            font-size: 65px;
+            margin-bottom: 15px;
+        }
+
+        .login-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-top: 12px;
+        }
         </style>
 
         <div class="login-container">
             <div class="login-icon">🛡️</div>
-            <div class="login-title">SafeLink AI</div>
+
+            <div class="login-title">
+                SafeLink AI
+            </div>
+
             <div class="login-subtitle">
-                <b>AI-Powered Security Scanner</b><br><br>
-                Check suspicious URLs and messages<br>
-                with machine learning.
+                <b>AI-Powered Security Scanner</b>
+                <br><br>
+                Check suspicious URLs and messages
+                <br>
+                using machine learning.
             </div>
         </div>
-    """)
+    """, unsafe_allow_html=True)
 
-    st.markdown(html_code, unsafe_allow_html=True)
+    if st.button(
+        "🔐 Continue with Google",
+        use_container_width=True,
+        type="primary"
+    ):
+        st.login("google")
 
-    if not hasattr(st, "login"):
-        st.error("Google Login is not available in your current Streamlit version.")
-        st.info("Run: python -m pip install --upgrade streamlit authlib")
-        st.stop()
-
-    if st.button("🔐 Continue with Google", use_container_width=True, key="google_login_button"):
-        st.login()
 
 # ============================================================
 # LOGIN CHECK
 # ============================================================
-user_info = getattr(st, "user", None)
-is_logged_in = bool(
-    getattr(user_info, "is_logged_in", False)
-)
 
-if not is_logged_in:
+if not st.user.is_logged_in:
     show_login_page()
     st.stop()
 
