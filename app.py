@@ -1,4 +1,3 @@
-
 import math
 import ipaddress
 from pathlib import Path
@@ -30,135 +29,145 @@ BASE_DIR = Path(__file__).resolve().parent
 
 st.markdown(
     """
-<style>
+    <style>
 
-.stApp {
-    background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
-}
+    .stApp {
+        background: linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #eef4ff 100%
+        );
+    }
 
-/* ================= LOGIN ================= */
+    /* ================= LOGIN ================= */
 
-.login-wrapper {
-    min-height: 70vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 15px;
-}
+    .login-wrapper {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px 15px;
+    }
 
-.login-card {
-    width: 100%;
-    max-width: 520px;
-    background: white;
-    padding: 45px 40px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: 0 15px 45px rgba(15, 23, 42, 0.12);
-    border: 1px solid #e2e8f0;
-}
+    .login-card {
+        width: 100%;
+        max-width: 520px;
+        background: white;
+        padding: 45px 40px;
+        border-radius: 24px;
+        text-align: center;
+        box-shadow: 0 15px 45px rgba(15, 23, 42, 0.12);
+        border: 1px solid #e2e8f0;
+    }
 
-.shield {
-    width: 85px;
-    height: 85px;
-    margin: 0 auto 20px auto;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #2563eb, #38bdf8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
-}
+    .shield {
+        width: 85px;
+        height: 85px;
+        margin: 0 auto 20px auto;
+        border-radius: 22px;
+        background: linear-gradient(
+            135deg,
+            #2563eb,
+            #38bdf8
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+    }
 
-.login-title {
-    font-size: 38px;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 8px;
-}
+    .login-title {
+        font-size: 38px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
 
-.login-subtitle {
-    color: #64748b;
-    font-size: 16px;
-    line-height: 1.7;
-    margin-top: 10px;
-}
+    .login-subtitle {
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.7;
+        margin-top: 10px;
+    }
 
-.login-description {
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 18px;
-    margin-top: 25px;
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.6;
-}
+    .login-description {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 18px;
+        margin-top: 25px;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.6;
+    }
 
-.login-footer {
-    margin-top: 25px;
-    color: #94a3b8;
-    font-size: 12px;
-}
+    .login-footer {
+        margin-top: 25px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
 
+    /* ================= BUTTONS ================= */
 
-/* ================= BUTTONS ================= */
+    .stButton > button {
+        border-radius: 12px;
+        min-height: 46px;
+        font-weight: 600;
+    }
 
-.stButton > button {
-    border-radius: 12px;
-    min-height: 46px;
-    font-weight: 600;
-}
+    /* ================= DASHBOARD ================= */
 
+    .dashboard-header {
+        background: white;
+        padding: 25px 30px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+        margin-bottom: 20px;
+    }
 
-/* ================= DASHBOARD ================= */
+    .dashboard-title {
+        font-size: 34px;
+        font-weight: 800;
+        color: #0f172a;
+    }
 
-.dashboard-header {
-    background: white;
-    padding: 25px 30px;
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
-    margin-bottom: 20px;
-}
+    .dashboard-subtitle {
+        color: #64748b;
+        font-size: 15px;
+        margin-top: 5px;
+    }
 
-.dashboard-title {
-    font-size: 34px;
-    font-weight: 800;
-    color: #0f172a;
-}
+    .welcome-box {
+        background: linear-gradient(
+            135deg,
+            #eff6ff,
+            #f0f9ff
+        );
+        border: 1px solid #bfdbfe;
+        padding: 16px 20px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+    }
 
-.dashboard-subtitle {
-    color: #64748b;
-    font-size: 15px;
-    margin-top: 5px;
-}
+    .scanner-card {
+        background: white;
+        padding: 25px;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+    }
 
-.welcome-box {
-    background: linear-gradient(135deg, #eff6ff, #f0f9ff);
-    border: 1px solid #bfdbfe;
-    padding: 16px 20px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-    color: #1e3a8a;
-}
+    .footer {
+        text-align: center;
+        color: #94a3b8;
+        padding: 25px;
+        font-size: 13px;
+    }
 
-.scanner-card {
-    background: white;
-    padding: 25px;
-    border-radius: 18px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
-}
-
-.footer {
-    text-align: center;
-    color: #94a3b8;
-    padding: 25px;
-    font-size: 13px;
-}
-
-</style>
-""",
+    </style>
+    """,
     unsafe_allow_html=True
 )
 
@@ -169,50 +178,54 @@ st.markdown(
 
 def show_login_page():
 
-    # IMPORTANT:
-    # HTML starts at the beginning of the string.
-    # This prevents Streamlit from displaying the HTML as text.
-
     st.markdown(
         """
-<div class="login-wrapper">
+        <div class="login-wrapper">
 
-    <div class="login-card">
+            <div class="login-card">
 
-        <div class="shield">🛡️</div>
+                <div class="shield">
+                    🛡️
+                </div>
 
-        <div class="login-title">
-            SafeLink AI
+                <div class="login-title">
+                    SafeLink AI
+                </div>
+
+                <div class="login-subtitle">
+                    <strong>
+                        AI-Powered Security Scanner
+                    </strong>
+
+                    <br><br>
+
+                    Detect suspicious URLs and messages
+                    <br>
+                    using Machine Learning.
+                </div>
+
+                <div class="login-description">
+
+                    🔗 <strong>URL Scanner</strong>
+                    <br>
+                    Analyze suspicious websites and links.
+
+                    <br><br>
+
+                    💬 <strong>Message Scanner</strong>
+                    <br>
+                    Detect spam and suspicious messages.
+
+                </div>
+
+                <div class="login-footer">
+                    Secure access powered by Google
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="login-subtitle">
-            <strong>AI-Powered Security Scanner</strong>
-            <br>
-            Detect suspicious URLs and messages
-            <br>
-            using Machine Learning.
-        </div>
-
-        <div class="login-description">
-            🔗 <strong>URL Scanner</strong>
-            <br>
-            Analyze suspicious websites and links.
-
-            <br><br>
-
-            💬 <strong>Message Scanner</strong>
-            <br>
-            Detect spam and suspicious messages.
-        </div>
-
-        <div class="login-footer">
-            Secure access powered by Google
-        </div>
-
-    </div>
-
-</div>
-""",
+        """,
         unsafe_allow_html=True
     )
 
@@ -231,37 +244,55 @@ def show_login_page():
 
 
 # ============================================================
-# AUTHENTICATION CHECK
+# GOOGLE AUTHENTICATION
 # ============================================================
 
-# Streamlit authentication is configured through:
-#
-# [auth]
-# redirect_uri = "..."
-# cookie_secret = "..."
-# client_id = "..."
-# client_secret = "..."
-# server_metadata_url = "..."
-#
-# We deliberately do NOT put credentials in app.py.
-
-
-try:
-    logged_in = st.user.is_logged_in
-
-except Exception:
-    logged_in = False
-
-
-# ============================================================
-# SHOW LOGIN PAGE
-# ============================================================
-
-if not logged_in:
+if not st.user.is_logged_in:
 
     show_login_page()
 
     st.stop()
+
+
+# ============================================================
+# LOGGED-IN USER INFORMATION
+# ============================================================
+
+user_name = getattr(
+    st.user,
+    "name",
+    "User"
+)
+
+user_email = getattr(
+    st.user,
+    "email",
+    ""
+)
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+with st.sidebar:
+
+    st.markdown("### 👤 Account")
+
+    st.write(
+        f"**{user_name}**"
+    )
+
+    if user_email:
+        st.caption(user_email)
+
+    st.divider()
+
+    if st.button(
+        "Logout",
+        use_container_width=True
+    ):
+        st.logout()
 
 
 # ============================================================
@@ -271,23 +302,41 @@ if not logged_in:
 @st.cache_resource
 def load_models():
 
-    url_model_path = BASE_DIR / "url_model_15trees.pkl"
-    url_features_path = BASE_DIR / "url_features.pkl"
+    # First check the main project folder
+    root_paths = {
+        "url_model": BASE_DIR / "url_model_15trees.pkl",
+        "url_features": BASE_DIR / "url_features.pkl",
+        "message_model": BASE_DIR / "message_model.pkl",
+        "message_vectorizer": BASE_DIR / "message_vectorizer.pkl",
+    }
 
-    message_model_path = BASE_DIR / "message_model.pkl"
-    message_vectorizer_path = BASE_DIR / "message_vectorizer.pkl"
+    # Also check the models folder
+    models_dir = BASE_DIR / "models"
 
-    required_files = [
-        url_model_path,
-        url_features_path,
-        message_model_path,
-        message_vectorizer_path
-    ]
+    model_paths = {}
+
+    for name, root_path in root_paths.items():
+
+        if root_path.exists():
+
+            model_paths[name] = root_path
+
+        else:
+
+            model_folder_path = models_dir / root_path.name
+
+            if model_folder_path.exists():
+
+                model_paths[name] = model_folder_path
+
+            else:
+
+                model_paths[name] = None
 
     missing_files = [
-        file.name
-        for file in required_files
-        if not file.exists()
+        path.name
+        for path in model_paths.values()
+        if path is None
     ]
 
     if missing_files:
@@ -297,18 +346,20 @@ def load_models():
             + ", ".join(missing_files)
         )
 
-    url_model = joblib.load(url_model_path)
+    url_model = joblib.load(
+        model_paths["url_model"]
+    )
 
     url_features = joblib.load(
-        url_features_path
+        model_paths["url_features"]
     )
 
     message_model = joblib.load(
-        message_model_path
+        model_paths["message_model"]
     )
 
     message_vectorizer = joblib.load(
-        message_vectorizer_path
+        model_paths["message_vectorizer"]
     )
 
     return (
@@ -338,12 +389,16 @@ except Exception as e:
 
     st.info(
         """
-Make sure these four files are in the same folder as app.py:
+Make sure these four files are available:
 
 • url_model_15trees.pkl
 • url_features.pkl
 • message_model.pkl
 • message_vectorizer.pkl
+
+They can be either:
+1. In the same folder as app.py
+2. Inside the models folder
 """
     )
 
@@ -357,7 +412,6 @@ Make sure these four files are in the same folder as app.py:
 def calculate_entropy(text):
 
     if not text:
-
         return 0.0
 
     counts = Counter(text)
@@ -387,11 +441,9 @@ def extract_url_features(url):
     url = url.strip()
 
     if not url:
-
         return None
 
-    # Add HTTP if the user doesn't provide a scheme.
-
+    # Add HTTP if user doesn't provide a scheme
     if not url.lower().startswith(
         ("http://", "https://")
     ):
@@ -414,9 +466,9 @@ def extract_url_features(url):
 
         query = parsed.query or ""
 
-        # -----------------------------
+        # ============================
         # BASIC FEATURES
-        # -----------------------------
+        # ============================
 
         url_length = len(url)
 
@@ -444,9 +496,9 @@ def extract_url_features(url):
             ]
         )
 
-        # -----------------------------
+        # ============================
         # CHARACTER FEATURES
-        # -----------------------------
+        # ============================
 
         num_digits = sum(
             c.isdigit()
@@ -479,11 +531,13 @@ def extract_url_features(url):
 
         num_slash = url.count("/")
 
-        # -----------------------------
+        # ============================
         # ENTROPY
-        # -----------------------------
+        # ============================
 
-        entropy_url = calculate_entropy(url)
+        entropy_url = calculate_entropy(
+            url
+        )
 
         ratio_digits = (
             num_digits / url_length
@@ -497,9 +551,9 @@ def extract_url_features(url):
             else 0
         )
 
-        # -----------------------------
+        # ============================
         # IP ADDRESS
-        # -----------------------------
+        # ============================
 
         try:
 
@@ -513,9 +567,9 @@ def extract_url_features(url):
 
             is_ip_address = 0
 
-        # -----------------------------
+        # ============================
         # SUSPICIOUS TLD
-        # -----------------------------
+        # ============================
 
         suspicious_tlds = [
             ".tk",
@@ -534,16 +588,14 @@ def extract_url_features(url):
 
         is_suspicious_tld = int(
             any(
-                hostname.lower().endswith(
-                    tld
-                )
+                hostname.lower().endswith(tld)
                 for tld in suspicious_tlds
             )
         )
 
-        # -----------------------------
+        # ============================
         # HTTPS
-        # -----------------------------
+        # ============================
 
         uses_https = int(
             url.lower().startswith(
@@ -551,9 +603,9 @@ def extract_url_features(url):
             )
         )
 
-        # -----------------------------
+        # ============================
         # LOGIN KEYWORDS
-        # -----------------------------
+        # ============================
 
         login_words = [
             "login",
@@ -570,9 +622,9 @@ def extract_url_features(url):
             )
         )
 
-        # -----------------------------
+        # ============================
         # FINAL FEATURES
-        # -----------------------------
+        # ============================
 
         features = {
 
@@ -685,7 +737,7 @@ def is_dangerous_prediction(
 
 
 # ============================================================
-# HEADER
+# DASHBOARD HEADER
 # ============================================================
 
 header_col1, header_col2 = st.columns(
@@ -697,18 +749,18 @@ with header_col1:
 
     st.markdown(
         """
-<div class="dashboard-header">
+        <div class="dashboard-header">
 
-    <div class="dashboard-title">
-        🛡️ SafeLink AI
-    </div>
+            <div class="dashboard-title">
+                🛡️ SafeLink AI
+            </div>
 
-    <div class="dashboard-subtitle">
-        AI-Powered Security Scanner
-    </div>
+            <div class="dashboard-subtitle">
+                AI-Powered Security Scanner
+            </div>
 
-</div>
-""",
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -721,54 +773,28 @@ with header_col2:
         "Logout",
         use_container_width=True
     ):
-
         st.logout()
 
 
 # ============================================================
-# USER INFORMATION
-# ============================================================
-
-user_name = getattr(
-    st.user,
-    "name",
-    None
-)
-
-user_email = getattr(
-    st.user,
-    "email",
-    None
-)
-
-if not user_name:
-
-    user_name = (
-        user_email
-        if user_email
-        else "User"
-    )
-
-
-# ============================================================
-# WELCOME
+# WELCOME MESSAGE
 # ============================================================
 
 st.markdown(
     f"""
-<div class="welcome-box">
+    <div class="welcome-box">
 
-    👋 <strong>Welcome, {user_name}</strong>
+        👋 <strong>Welcome, {user_name}</strong>
 
-    <br>
+        <br>
 
-    <span style="font-size:14px;">
-        Detect suspicious URLs and messages
-        using machine learning.
-    </span>
+        <span style="font-size:14px;">
+            Detect suspicious URLs and messages
+            using machine learning.
+        </span>
 
-</div>
-""",
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
@@ -793,19 +819,19 @@ with url_tab:
 
     st.markdown(
         """
-<div class="scanner-card">
+        <div class="scanner-card">
 
-    <h2>
-        🔗 URL Threat Detection
-    </h2>
+            <h2>
+                🔗 URL Threat Detection
+            </h2>
 
-    <p style="color:#64748b;">
-        Enter a website URL to check whether
-        it looks safe or suspicious.
-    </p>
+            <p style="color:#64748b;">
+                Enter a website URL to check whether
+                it looks safe or suspicious.
+            </p>
 
-</div>
-""",
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -843,13 +869,7 @@ with url_tab:
             None
         )
 
-        st.session_state.pop(
-            "url_result",
-            None
-        )
-
         st.rerun()
-
 
     if analyze_url:
 
@@ -861,10 +881,8 @@ with url_tab:
 
         else:
 
-            features_df = (
-                extract_url_features(
-                    url
-                )
+            features_df = extract_url_features(
+                url
             )
 
             if features_df is None:
@@ -877,37 +895,53 @@ with url_tab:
 
                 try:
 
-                    # Match model feature order.
+                    # =========================
+                    # FEATURE ORDER
+                    # =========================
 
-                    if url_features is not None:
+                    feature_order = None
 
-                        try:
+                    if isinstance(
+                        url_features,
+                        pd.DataFrame
+                    ):
 
-                            feature_order = list(
-                                url_features
+                        feature_order = list(
+                            url_features.columns
+                        )
+
+                    elif isinstance(
+                        url_features,
+                        (list, tuple)
+                    ):
+
+                        feature_order = list(
+                            url_features
+                        )
+
+                    # =========================
+                    # MATCH MODEL FEATURES
+                    # =========================
+
+                    if feature_order:
+
+                        missing_features = [
+                            feature
+                            for feature in feature_order
+                            if feature not in features_df.columns
+                        ]
+
+                        if not missing_features:
+
+                            features_df = (
+                                features_df[
+                                    feature_order
+                                ]
                             )
 
-                            if all(
-                                feature in
-                                features_df.columns
-                                for feature
-                                in feature_order
-                            ):
-
-                                features_df = (
-                                    features_df[
-                                        feature_order
-                                    ]
-                                )
-
-                        except Exception:
-
-                            pass
-
-
-                    # -------------------------
+                    # =========================
                     # PREDICTION
-                    # -------------------------
+                    # =========================
 
                     prediction = (
                         url_model.predict(
@@ -917,10 +951,9 @@ with url_tab:
 
                     probability = None
 
-
-                    # -------------------------
+                    # =========================
                     # PROBABILITY
-                    # -------------------------
+                    # =========================
 
                     if hasattr(
                         url_model,
@@ -951,17 +984,15 @@ with url_tab:
                                 ] * 100
                             )
 
-
                     dangerous = (
                         is_dangerous_prediction(
                             prediction
                         )
                     )
 
-
-                    # -------------------------
+                    # =========================
                     # RESULT
-                    # -------------------------
+                    # =========================
 
                     st.divider()
 
@@ -969,18 +1000,17 @@ with url_tab:
                         "📊 Analysis Result"
                     )
 
-
                     if dangerous:
 
                         if probability is not None:
 
                             st.error(
                                 f"""
-🚨 DANGEROUS
+                                🚨 DANGEROUS
 
-Model Confidence:
-{probability:.2f}%
-"""
+                                Model Confidence:
+                                {probability:.2f}%
+                                """
                             )
 
                         else:
@@ -995,11 +1025,11 @@ Model Confidence:
 
                             st.success(
                                 f"""
-✅ SAFE
+                                ✅ SAFE
 
-Model Confidence:
-{probability:.2f}%
-"""
+                                Model Confidence:
+                                {probability:.2f}%
+                                """
                             )
 
                         else:
@@ -1008,10 +1038,9 @@ Model Confidence:
                                 "✅ SAFE"
                             )
 
-
-                    # -------------------------
+                    # =========================
                     # URL DETAILS
-                    # -------------------------
+                    # =========================
 
                     st.write(
                         "### 🔎 URL Details"
@@ -1020,7 +1049,6 @@ Model Confidence:
                     col1, col2, col3 = (
                         st.columns(3)
                     )
-
 
                     with col1:
 
@@ -1032,7 +1060,6 @@ Model Confidence:
                                 ].iloc[0]
                             )
                         )
-
 
                     with col2:
 
@@ -1049,7 +1076,6 @@ Model Confidence:
                             else "No"
                         )
 
-
                     with col3:
 
                         ip_value = (
@@ -1064,7 +1090,6 @@ Model Confidence:
                             if ip_value
                             else "No"
                         )
-
 
                 except Exception as e:
 
@@ -1089,37 +1114,32 @@ with message_tab:
 
     st.markdown(
         """
-<div class="scanner-card">
+        <div class="scanner-card">
 
-    <h2>
-        💬 Message Threat Detection
-    </h2>
+            <h2>
+                💬 Message Threat Detection
+            </h2>
 
-    <p style="color:#64748b;">
-        Paste an SMS, email message or text
-        to check for spam or suspicious content.
-    </p>
+            <p style="color:#64748b;">
+                Paste an SMS, email message or text
+                to check for spam or suspicious content.
+            </p>
 
-</div>
-""",
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     st.write("")
 
-
     message = st.text_area(
         "Enter message",
         key="message_input",
         height=180,
-        placeholder=(
-            "Paste your SMS or message here..."
-        )
+        placeholder="Paste your SMS or message here..."
     )
 
-
     col1, col2 = st.columns(2)
-
 
     with col1:
 
@@ -1130,7 +1150,6 @@ with message_tab:
             type="primary"
         )
 
-
     with col2:
 
         clear_message = st.button(
@@ -1139,7 +1158,6 @@ with message_tab:
             use_container_width=True
         )
 
-
     if clear_message:
 
         st.session_state.pop(
@@ -1147,13 +1165,7 @@ with message_tab:
             None
         )
 
-        st.session_state.pop(
-            "message_result",
-            None
-        )
-
         st.rerun()
-
 
     if analyze_message:
 
@@ -1167,9 +1179,9 @@ with message_tab:
 
             try:
 
-                # -------------------------
+                # =========================
                 # VECTORIZE
-                # -------------------------
+                # =========================
 
                 message_vector = (
                     message_vectorizer.transform(
@@ -1177,10 +1189,9 @@ with message_tab:
                     )
                 )
 
-
-                # -------------------------
+                # =========================
                 # PREDICTION
-                # -------------------------
+                # =========================
 
                 prediction = (
                     message_model.predict(
@@ -1190,10 +1201,9 @@ with message_tab:
 
                 probability = None
 
-
-                # -------------------------
+                # =========================
                 # PROBABILITY
-                # -------------------------
+                # =========================
 
                 if hasattr(
                     message_model,
@@ -1224,24 +1234,21 @@ with message_tab:
                             ] * 100
                         )
 
-
                 dangerous = (
                     is_dangerous_prediction(
                         prediction
                     )
                 )
 
-
-                # -------------------------
+                # =========================
                 # RESULT
-                # -------------------------
+                # =========================
 
                 st.divider()
 
                 st.subheader(
                     "📊 Analysis Result"
                 )
-
 
                 if dangerous:
 
@@ -1269,10 +1276,9 @@ with message_tab:
                             f"{probability:.2f}%"
                         )
 
-
-                # -------------------------
+                # =========================
                 # MESSAGE
-                # -------------------------
+                # =========================
 
                 st.write(
                     "### 📝 Message Analyzed"
@@ -1281,7 +1287,6 @@ with message_tab:
                 st.info(
                     message
                 )
-
 
             except Exception as e:
 
@@ -1306,17 +1311,16 @@ st.divider()
 
 st.markdown(
     """
-<div class="footer">
+    <div class="footer">
 
-    🛡️ <strong>SafeLink AI</strong>
+        🛡️ <strong>SafeLink AI</strong>
 
-    <br>
+        <br>
 
-    Machine Learning based
-    URL & Message Security Analysis
+        Machine Learning based
+        URL & Message Security Analysis
 
-</div>
-""",
+    </div>
+    """,
     unsafe_allow_html=True
 )
-
