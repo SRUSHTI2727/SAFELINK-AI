@@ -1,5 +1,8 @@
 import math
+import re
 import ipaddress
+import gzip
+import base64
 from pathlib import Path
 from urllib.parse import urlparse
 from collections import Counter
@@ -22,1305 +25,913 @@ st.set_page_config(
 
 BASE_DIR = Path(__file__).resolve().parent
 
-
 # ============================================================
-# CUSTOM CSS
-# ============================================================
-
-st.markdown(
-    """
-    <style>
-
-    .stApp {
-        background: linear-gradient(
-            135deg,
-            #f8fafc 0%,
-            #eef4ff 100%
-        );
-    }
-
-    /* ================= LOGIN ================= */
-
-    .login-wrapper {
-        min-height: 70vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 30px 15px;
-    }
-
-    .login-card {
-        width: 100%;
-        max-width: 520px;
-        background: white;
-        padding: 45px 40px;
-        border-radius: 24px;
-        text-align: center;
-        box-shadow: 0 15px 45px rgba(15, 23, 42, 0.12);
-        border: 1px solid #e2e8f0;
-    }
-
-    .shield {
-        width: 85px;
-        height: 85px;
-        margin: 0 auto 20px auto;
-        border-radius: 22px;
-        background: linear-gradient(
-            135deg,
-            #2563eb,
-            #38bdf8
-        );
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 48px;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
-    }
-
-    .login-title {
-        font-size: 38px;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 8px;
-    }
-
-    .login-subtitle {
-        color: #64748b;
-        font-size: 16px;
-        line-height: 1.7;
-        margin-top: 10px;
-    }
-
-    .login-description {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 18px;
-        margin-top: 25px;
-        color: #475569;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .login-footer {
-        margin-top: 25px;
-        color: #94a3b8;
-        font-size: 12px;
-    }
-
-    /* ================= BUTTONS ================= */
-
-    .stButton > button {
-        border-radius: 12px;
-        min-height: 46px;
-        font-weight: 600;
-    }
-
-    /* ================= DASHBOARD ================= */
-
-    .dashboard-header {
-        background: white;
-        padding: 25px 30px;
-        border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
-        margin-bottom: 20px;
-    }
-
-    .dashboard-title {
-        font-size: 34px;
-        font-weight: 800;
-        color: #0f172a;
-    }
-
-    .dashboard-subtitle {
-        color: #64748b;
-        font-size: 15px;
-        margin-top: 5px;
-    }
-
-    .welcome-box {
-        background: linear-gradient(
-            135deg,
-            #eff6ff,
-            #f0f9ff
-        );
-        border: 1px solid #bfdbfe;
-        padding: 16px 20px;
-        border-radius: 14px;
-        margin-bottom: 20px;
-        color: #1e3a8a;
-    }
-
-    .scanner-card {
-        background: white;
-        padding: 25px;
-        border-radius: 18px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
-    }
-
-    .footer {
-        text-align: center;
-        color: #94a3b8;
-        padding: 25px;
-        font-size: 13px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# GOOGLE LOGIN PAGE
+# WELCOME PAGE
 # ============================================================
 
-def show_login_page():
+if "show_scanner" not in st.session_state:
+    st.session_state.show_scanner = False
+
+if not st.session_state.show_scanner:
 
     st.markdown(
         """
-        <div class="login-wrapper">
+        <style>
+        .welcome-container {
+            text-align: center;
+            padding: 80px 20px 30px 20px;
+        }
 
-            <div class="login-card">
+        .welcome-shield {
+            font-size: 70px;
+            margin-bottom: 10px;
+        }
 
-                <div class="shield">
-                    🛡️
-                </div>
+        .welcome-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
 
-                <div class="login-title">
-                    SafeLink AI
-                </div>
+        .welcome-subtitle {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
 
-                <div class="login-subtitle">
-                    <strong>
-                        AI-Powered Security Scanner
-                    </strong>
+        .welcome-description {
+           font-size: 18px;
+           line-height: 1.6;
+           max-width: 650px;
+           margin: 0 auto 35px auto;
+           text-align: center;
+           opacity: 1;
+           visibility: visible;
+        }
 
-                    <br><br>
+        .feature-card {
+            padding: 22px 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(128,128,128,0.25);
+            min-height: 115px;
+            margin-bottom: 20px;
+        }
 
-                    Detect suspicious URLs and messages
-                    <br>
-                    using Machine Learning.
-                </div>
+        .feature-icon {
+            font-size: 32px;
+        }
 
-                <div class="login-description">
+        .feature-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
 
-                    🔗 <strong>URL Scanner</strong>
-                    <br>
-                    Analyze suspicious websites and links.
+        div.stButton > button {
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 12px 35px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-                    <br><br>
-
-                    💬 <strong>Message Scanner</strong>
-                    <br>
-                    Detect spam and suspicious messages.
-
-                </div>
-
-                <div class="login-footer">
-                    Secure access powered by Google
-                </div>
-
-            </div>
+    st.markdown(
+        """
+        <div class="welcome-container">
+            <div class="welcome-shield">🛡️</div>
+            <div class="welcome-title">SafeLink AI</div>
+            <div class="welcome-subtitle">Welcome to SafeLink AI</div>
+            <div class="welcome-subtitle">SMS Spam Detector & Risk Analyzer</div>
 
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.write("")
+    col1, col2, col3 = st.columns(3)
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <div class="feature-title">URL Detection</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with col2:
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">Message Detection</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
+    with col3:
+        st.markdown(
+            """
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-title">AI Risk Analysis</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.write("")
+
+    button_col1, button_col2, button_col3 = st.columns([1, 1, 1])
+
+    with button_col2:
         if st.button(
-            "🔐  Continue with Google",
-            use_container_width=True,
-            type="primary"
+            "CONTINUE",
+            type="primary",
+            use_container_width=True
         ):
-            st.login()
-
-
-# ============================================================
-# GOOGLE AUTHENTICATION
-# ============================================================
-
-if not st.user.is_logged_in:
-
-    show_login_page()
+            st.session_state.show_scanner = True
+            st.rerun()
 
     st.stop()
 
 
-# ============================================================
-# LOGGED-IN USER INFORMATION
-# ============================================================
+MODELS_DIR = BASE_DIR / "models"
 
-user_name = getattr(
-    st.user,
-    "name",
-    "User"
-)
+MESSAGE_MODEL_FILE = MODELS_DIR / "message_model.pkl"
+MESSAGE_VECTORIZER_FILE = MODELS_DIR / "message_vectorizer.pkl"
+URL_FEATURES_FILE = MODELS_DIR / "url_features.pkl"
 
-user_email = getattr(
-    st.user,
-    "email",
-    ""
-)
+EMBEDDED_URL_MODEL_FILE = BASE_DIR / "embedded_url_model.txt"
 
 
 # ============================================================
-# SIDEBAR
+# SAFE WHITELIST
 # ============================================================
 
-with st.sidebar:
+SAFE_WHITELIST = [
+    "google.com",
+    "wikipedia.org",
+    "stackoverflow.com",
+    "apple.com",
+    "github.com",
+    "linkedin.com",
+    "twitter.com",
+    "reddit.com",
+    "instagram.com",
+    "facebook.com",
+    "yahoo.com",
+    "bing.com",
+    "duckduckgo.com",
+    "cloudflare.com",
+    "openai.com",
+    "gitlab.com",
+    "amazonaws.com",
+    "azure.com",
+    "huggingface.com",
+    "youtube.com",
+    "microsoft.com"
+]
 
-    st.markdown("### 👤 Account")
 
-    st.write(
-        f"**{user_name}**"
+# ============================================================
+# CHECK WHITELIST
+# ============================================================
+
+def is_whitelisted(url: str) -> bool:
+
+    try:
+        parsed = urlparse(url)
+
+        domain = parsed.hostname or ""
+
+        domain = domain.lower()
+
+        if domain.startswith("www."):
+            domain = domain[4:]
+
+        for safe_domain in SAFE_WHITELIST:
+
+            if (
+                domain == safe_domain
+                or domain.endswith("." + safe_domain)
+            ):
+                return True
+
+    except Exception:
+        pass
+
+    return False
+
+
+# ============================================================
+# LOAD EMBEDDED URL MODEL
+# ============================================================
+
+@st.cache_resource
+def load_embedded_url_model():
+
+    if not EMBEDDED_URL_MODEL_FILE.exists():
+
+        raise FileNotFoundError(
+            f"Missing file: {EMBEDDED_URL_MODEL_FILE}"
+        )
+
+    with open(
+        EMBEDDED_URL_MODEL_FILE,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        encoded_data = f.read().strip()
+
+    compressed_data = base64.b64decode(encoded_data)
+
+    model_bytes = gzip.decompress(compressed_data)
+
+    url_model = joblib.load(
+        __import__("io").BytesIO(model_bytes)
     )
 
-    if user_email:
-        st.caption(user_email)
+    return url_model
 
-    st.divider()
 
-    if st.button(
-        "Logout",
-        use_container_width=True
-    ):
-        st.logout()
+# ============================================================
+# LOAD ALL MODELS
+# ============================================================
+
+@st.cache_resource
+def load_models():
+
+    # --------------------------------------------------------
+    # Check required files
+    # --------------------------------------------------------
+
+    missing_files = []
+
+    if not MESSAGE_MODEL_FILE.exists():
+        missing_files.append(str(MESSAGE_MODEL_FILE))
+
+    if not MESSAGE_VECTORIZER_FILE.exists():
+        missing_files.append(str(MESSAGE_VECTORIZER_FILE))
+
+    if not URL_FEATURES_FILE.exists():
+        missing_files.append(str(URL_FEATURES_FILE))
+
+    if not EMBEDDED_URL_MODEL_FILE.exists():
+        missing_files.append(str(EMBEDDED_URL_MODEL_FILE))
+
+    if missing_files:
+
+        raise FileNotFoundError(
+            "The following required files are missing:\n\n"
+            + "\n".join(missing_files)
+        )
+
+    # --------------------------------------------------------
+    # Message model
+    # --------------------------------------------------------
+
+    message_model = joblib.load(
+        MESSAGE_MODEL_FILE
+    )
+
+    # --------------------------------------------------------
+    # Message vectorizer
+    # --------------------------------------------------------
+
+    message_vectorizer = joblib.load(
+        MESSAGE_VECTORIZER_FILE
+    )
+
+    # --------------------------------------------------------
+    # URL feature names
+    # --------------------------------------------------------
+
+    url_feature_names = joblib.load(
+        URL_FEATURES_FILE
+    )
+
+    # --------------------------------------------------------
+    # Embedded URL model
+    # --------------------------------------------------------
+
+    url_model = load_embedded_url_model()
+
+    return (
+        message_model,
+        message_vectorizer,
+        url_model,
+        url_feature_names
+    )
 
 
 # ============================================================
 # LOAD MODELS
 # ============================================================
 
-@st.cache_resource
-def load_models():
-
-    # First check the main project folder
-    root_paths = {
-        "url_model": BASE_DIR / "url_model_15trees.pkl",
-        "url_features": BASE_DIR / "url_features.pkl",
-        "message_model": BASE_DIR / "message_model.pkl",
-        "message_vectorizer": BASE_DIR / "message_vectorizer.pkl",
-    }
-
-    # Also check the models folder
-    models_dir = BASE_DIR / "models"
-
-    model_paths = {}
-
-    for name, root_path in root_paths.items():
-
-        if root_path.exists():
-
-            model_paths[name] = root_path
-
-        else:
-
-            model_folder_path = models_dir / root_path.name
-
-            if model_folder_path.exists():
-
-                model_paths[name] = model_folder_path
-
-            else:
-
-                model_paths[name] = None
-
-    missing_files = [
-        path.name
-        for path in model_paths.values()
-        if path is None
-    ]
-
-    if missing_files:
-
-        raise FileNotFoundError(
-            "Missing model file(s): "
-            + ", ".join(missing_files)
-        )
-
-    url_model = joblib.load(
-        model_paths["url_model"]
-    )
-
-    url_features = joblib.load(
-        model_paths["url_features"]
-    )
-
-    message_model = joblib.load(
-        model_paths["message_model"]
-    )
-
-    message_vectorizer = joblib.load(
-        model_paths["message_vectorizer"]
-    )
-
-    return (
-        url_model,
-        url_features,
-        message_model,
-        message_vectorizer
-    )
-
-
 try:
 
     (
-        url_model,
-        url_features,
         message_model,
-        message_vectorizer
+        message_vectorizer,
+        url_model,
+        url_feature_names
     ) = load_models()
 
 except Exception as e:
 
-    st.error(
-        "❌ SafeLink AI model files could not be loaded."
-    )
+    st.error("❌ Error loading SafeLink AI models")
 
     st.code(str(e))
 
     st.info(
-        """
-Make sure these four files are available:
-
-• url_model_15trees.pkl
-• url_features.pkl
-• message_model.pkl
-• message_vectorizer.pkl
-
-They can be either:
-1. In the same folder as app.py
-2. Inside the models folder
-"""
+        "Please make sure your models folder and "
+        "embedded_url_model.txt are present."
     )
 
     st.stop()
 
 
 # ============================================================
-# URL ENTROPY
-# ============================================================
-
-def calculate_entropy(text):
-
-    if not text:
-        return 0.0
-
-    counts = Counter(text)
-
-    length = len(text)
-
-    entropy = 0.0
-
-    for count in counts.values():
-
-        probability = count / length
-
-        entropy -= (
-            probability *
-            math.log2(probability)
-        )
-
-    return entropy
-
-
-# ============================================================
 # URL FEATURE EXTRACTION
 # ============================================================
 
-def extract_url_features(url):
+def extract_url_features(url: str) -> pd.DataFrame:
 
-    url = url.strip()
+    parsed = urlparse(url)
 
-    if not url:
-        return None
+    hostname = parsed.hostname or ""
+    path = parsed.path or ""
+    query = parsed.query or ""
 
-    # Add HTTP if user doesn't provide a scheme
-    if not url.lower().startswith(
-        ("http://", "https://")
-    ):
+    domain = hostname.replace("www.", "")
 
-        url_to_parse = "http://" + url
+    # --------------------------------------------------------
+    # Basic URL features
+    # --------------------------------------------------------
+
+    url_length = len(url)
+
+    domain_length = len(domain)
+
+    hostname_length = len(hostname)
+
+    path_length = len(path)
+
+    url_depth = len(
+        [x for x in path.split("/") if x]
+    )
+
+    query_length = len(query)
+
+    path_segments_count = len(
+        [x for x in path.split("/") if x]
+    )
+
+    # --------------------------------------------------------
+    # Character features
+    # --------------------------------------------------------
+
+    num_digits = sum(
+        c.isdigit()
+        for c in url
+    )
+
+    num_letters = sum(
+        c.isalpha()
+        for c in url
+    )
+
+    num_special_chars = sum(
+        not c.isalnum()
+        for c in url
+    )
+
+    num_dots = url.count(".")
+
+    num_hyphens = url.count("-")
+
+    num_at = url.count("@")
+
+    num_percent = url.count("%")
+
+    num_equals = url.count("=")
+
+    num_question = url.count("?")
+
+    num_ampersand = url.count("&")
+
+    num_slash = url.count("/")
+
+    # --------------------------------------------------------
+    # Shannon Entropy
+    # --------------------------------------------------------
+
+    counts = Counter(url)
+
+    total = len(url)
+
+    if total > 0:
+
+        entropy_url = -sum(
+            (count / total)
+            * math.log2(count / total)
+            for count in counts.values()
+        )
 
     else:
 
-        url_to_parse = url
+        entropy_url = 0
+
+    # --------------------------------------------------------
+    # Ratios
+    # --------------------------------------------------------
+
+    ratio_digits = (
+        num_digits / url_length
+        if url_length
+        else 0
+    )
+
+    ratio_letters = (
+        num_letters / url_length
+        if url_length
+        else 0
+    )
+
+    # --------------------------------------------------------
+    # IP address detection
+    # --------------------------------------------------------
 
     try:
 
-        parsed = urlparse(
-            url_to_parse
+        ipaddress.ip_address(hostname)
+
+        is_ip_address = 1
+
+    except ValueError:
+
+        is_ip_address = 0
+
+    # --------------------------------------------------------
+    # Suspicious TLD
+    # --------------------------------------------------------
+
+    suspicious_tlds = [
+        ".tk",
+        ".ml",
+        ".ga",
+        ".cf",
+        ".gq",
+        ".top",
+        ".xyz",
+        ".click",
+        ".link",
+        ".work",
+        ".zip",
+        ".review"
+    ]
+
+    is_suspicious_tld = int(
+        any(
+            domain.lower().endswith(tld)
+            for tld in suspicious_tlds
         )
+    )
 
-        hostname = parsed.hostname or ""
+    # --------------------------------------------------------
+    # HTTPS
+    # --------------------------------------------------------
 
-        path = parsed.path or ""
+    uses_https = int(
+        parsed.scheme.lower() == "https"
+    )
 
-        query = parsed.query or ""
+    # --------------------------------------------------------
+    # Login / verification keywords
+    # --------------------------------------------------------
 
-        # ============================
-        # BASIC FEATURES
-        # ============================
-
-        url_length = len(url)
-
-        domain_length = len(hostname)
-
-        hostname_length = len(hostname)
-
-        path_length = len(path)
-
-        url_depth = len(
-            [
-                x
-                for x in path.split("/")
-                if x
+    contains_login = int(
+        any(
+            word in url.lower()
+            for word in [
+                "login",
+                "signin",
+                "sign-in",
+                "verify",
+                "verification"
             ]
         )
+    )
 
-        query_length = len(query)
+    # --------------------------------------------------------
+    # EXACT 25 FEATURES
+    # --------------------------------------------------------
 
-        path_segments_count = len(
-            [
-                x
-                for x in path.split("/")
-                if x
-            ]
+    features = [
+
+        url_length,
+        domain_length,
+        hostname_length,
+        path_length,
+        url_depth,
+        query_length,
+        path_segments_count,
+        num_digits,
+        num_letters,
+        num_special_chars,
+        num_dots,
+        num_hyphens,
+        num_at,
+        num_percent,
+        num_equals,
+        num_question,
+        num_ampersand,
+        num_slash,
+        entropy_url,
+        ratio_digits,
+        ratio_letters,
+        is_ip_address,
+        is_suspicious_tld,
+        uses_https,
+        contains_login
+
+    ]
+
+    # --------------------------------------------------------
+    # Create DataFrame
+    # --------------------------------------------------------
+
+    return pd.DataFrame(
+        [features],
+        columns=url_feature_names
+    )
+
+
+# ============================================================
+# EXTRACT URLS FROM MESSAGE
+# ============================================================
+
+def extract_urls_from_text(text: str) -> list:
+
+    url_pattern = r'https?://[^\s"\'<>]+'
+
+    raw_urls = re.findall(
+        url_pattern,
+        text
+    )
+
+    cleaned_urls = [
+        url.rstrip('".\',;')
+        for url in raw_urls
+    ]
+
+    return cleaned_urls
+
+
+# ============================================================
+# HEADER
+# ============================================================
+
+st.title(
+    "🛡️ SafeLink AI — AI-Powered Security Scanner"
+)
+
+st.markdown(
+    """
+Analyze incoming SMS messages and embedded URLs
+for potential **Spam, Phishing, and Security Threats**.
+"""
+)
+
+st.divider()
+
+
+# ============================================================
+# INPUT
+# ============================================================
+
+user_input = st.text_area(
+    "Paste SMS / Message / URL Content:",
+    height=140,
+    placeholder=(
+        "Example: Claim your $1000 prize now at "
+        "http://free-prize.xyz/claim"
+    )
+)
+
+
+# ============================================================
+# ANALYZE BUTTON
+# ============================================================
+
+if st.button(
+    "🔍 Analyze Risk",
+    type="primary",
+    use_container_width=True
+):
+
+    if not user_input.strip():
+
+        st.warning(
+            "⚠️ Please enter a message to analyze."
         )
 
-        # ============================
-        # CHARACTER FEATURES
-        # ============================
+    else:
 
-        num_digits = sum(
-            c.isdigit()
-            for c in url
-        )
-
-        num_letters = sum(
-            c.isalpha()
-            for c in url
-        )
-
-        num_special_chars = sum(
-            not c.isalnum()
-            for c in url
-        )
-
-        num_dots = url.count(".")
-
-        num_hyphens = url.count("-")
-
-        num_at = url.count("@")
-
-        num_percent = url.count("%")
-
-        num_equals = url.count("=")
-
-        num_question = url.count("?")
-
-        num_ampersand = url.count("&")
-
-        num_slash = url.count("/")
-
-        # ============================
-        # ENTROPY
-        # ============================
-
-        entropy_url = calculate_entropy(
-            url
-        )
-
-        ratio_digits = (
-            num_digits / url_length
-            if url_length
-            else 0
-        )
-
-        ratio_letters = (
-            num_letters / url_length
-            if url_length
-            else 0
-        )
-
-        # ============================
-        # IP ADDRESS
-        # ============================
+        # ====================================================
+        # 1. SMS TEXT ANALYSIS
+        # ====================================================
 
         try:
 
-            ipaddress.ip_address(
-                hostname
+            msg_tfidf = message_vectorizer.transform(
+                [user_input]
             )
 
-            is_ip_address = 1
-
-        except ValueError:
-
-            is_ip_address = 0
-
-        # ============================
-        # SUSPICIOUS TLD
-        # ============================
-
-        suspicious_tlds = [
-            ".tk",
-            ".ml",
-            ".ga",
-            ".cf",
-            ".gq",
-            ".top",
-            ".xyz",
-            ".click",
-            ".link",
-            ".work",
-            ".zip",
-            ".review"
-        ]
-
-        is_suspicious_tld = int(
-            any(
-                hostname.lower().endswith(tld)
-                for tld in suspicious_tlds
-            )
-        )
-
-        # ============================
-        # HTTPS
-        # ============================
-
-        uses_https = int(
-            url.lower().startswith(
-                "https://"
-            )
-        )
-
-        # ============================
-        # LOGIN KEYWORDS
-        # ============================
-
-        login_words = [
-            "login",
-            "signin",
-            "sign-in",
-            "verify",
-            "verification"
-        ]
-
-        contains_login = int(
-            any(
-                word in url.lower()
-                for word in login_words
-            )
-        )
-
-        # ============================
-        # FINAL FEATURES
-        # ============================
-
-        features = {
-
-            "url_length":
-                url_length,
-
-            "domain_length":
-                domain_length,
-
-            "hostname_length":
-                hostname_length,
-
-            "path_length":
-                path_length,
-
-            "url_depth":
-                url_depth,
-
-            "query_length":
-                query_length,
-
-            "path_segments_count":
-                path_segments_count,
-
-            "num_digits":
-                num_digits,
-
-            "num_letters":
-                num_letters,
-
-            "num_special_chars":
-                num_special_chars,
-
-            "num_dots":
-                num_dots,
-
-            "num_hyphens":
-                num_hyphens,
-
-            "num_at":
-                num_at,
-
-            "num_percent":
-                num_percent,
-
-            "num_equals":
-                num_equals,
-
-            "num_question":
-                num_question,
-
-            "num_ampersand":
-                num_ampersand,
-
-            "num_slash":
-                num_slash,
-
-            "entropy_url":
-                entropy_url,
-
-            "ratio_digits":
-                ratio_digits,
-
-            "ratio_letters":
-                ratio_letters,
-
-            "is_ip_address":
-                is_ip_address,
-
-            "is_suspicious_tld":
-                is_suspicious_tld,
-
-            "uses_https":
-                uses_https,
-
-            "contains_login":
-                contains_login
-        }
-
-        return pd.DataFrame(
-            [features]
-        )
-
-    except Exception:
-
-        return None
-
-
-# ============================================================
-# PREDICTION HELPER
-# ============================================================
-
-def is_dangerous_prediction(
-    prediction
-):
-
-    value = str(
-        prediction
-    ).strip().lower()
-
-    return value in [
-        "1",
-        "true",
-        "spam",
-        "phishing",
-        "malicious",
-        "dangerous",
-        "suspicious"
-    ]
-
-
-# ============================================================
-# DASHBOARD HEADER
-# ============================================================
-
-header_col1, header_col2 = st.columns(
-    [5, 1]
-)
-
-
-with header_col1:
-
-    st.markdown(
-        """
-        <div class="dashboard-header">
-
-            <div class="dashboard-title">
-                🛡️ SafeLink AI
-            </div>
-
-            <div class="dashboard-subtitle">
-                AI-Powered Security Scanner
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-with header_col2:
-
-    st.write("")
-
-    if st.button(
-        "Logout",
-        use_container_width=True
-    ):
-        st.logout()
-
-
-# ============================================================
-# WELCOME MESSAGE
-# ============================================================
-
-st.markdown(
-    f"""
-    <div class="welcome-box">
-
-        👋 <strong>Welcome, {user_name}</strong>
-
-        <br>
-
-        <span style="font-size:14px;">
-            Detect suspicious URLs and messages
-            using machine learning.
-        </span>
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# TABS
-# ============================================================
-
-url_tab, message_tab = st.tabs(
-    [
-        "🔗 URL Scanner",
-        "💬 Message Scanner"
-    ]
-)
-
-
-# ============================================================
-# URL SCANNER
-# ============================================================
-
-with url_tab:
-
-    st.markdown(
-        """
-        <div class="scanner-card">
-
-            <h2>
-                🔗 URL Threat Detection
-            </h2>
-
-            <p style="color:#64748b;">
-                Enter a website URL to check whether
-                it looks safe or suspicious.
-            </p>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.write("")
-
-    url = st.text_input(
-        "Enter URL",
-        key="url_input",
-        placeholder="https://example.com"
-    )
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        analyze_url = st.button(
-            "🔍 Analyze URL",
-            key="analyze_url_button",
-            use_container_width=True,
-            type="primary"
-        )
-
-    with col2:
-
-        clear_url = st.button(
-            "🗑️ Clear",
-            key="clear_url_button",
-            use_container_width=True
-        )
-
-    if clear_url:
-
-        st.session_state.pop(
-            "url_input",
-            None
-        )
-
-        st.rerun()
-
-    if analyze_url:
-
-        if not url.strip():
-
-            st.warning(
-                "⚠️ Please enter a URL first."
+            msg_probabilities = (
+                message_model.predict_proba(
+                    msg_tfidf
+                )[0]
             )
 
-        else:
+            msg_pred = message_model.predict(
+                msg_tfidf
+            )[0]
 
-            features_df = extract_url_features(
-                url
+            # Assuming class 1 = Spam / Threat
+            msg_prob = float(
+                msg_probabilities[1]
             )
 
-            if features_df is None:
+        except Exception as e:
 
-                st.error(
-                    "❌ Unable to analyze this URL."
+            st.error(
+                f"❌ SMS model error: {e}"
+            )
+
+            st.stop()
+
+
+        # ====================================================
+        # 2. URL ANALYSIS
+        # ====================================================
+
+        extracted_urls = extract_urls_from_text(
+            user_input
+        )
+
+        url_results = []
+
+        max_url_prob = 0.0
+
+
+        for url in extracted_urls:
+
+            # ------------------------------------------------
+            # WHITELIST CHECK
+            # ------------------------------------------------
+
+            if is_whitelisted(url):
+
+                u_threat_prob = 0.0
+
+                status_note = (
+                    "Verified Whitelisted Domain"
                 )
 
             else:
 
                 try:
 
-                    # =========================
-                    # FEATURE ORDER
-                    # =========================
-
-                    feature_order = None
-
-                    if isinstance(
-                        url_features,
-                        pd.DataFrame
-                    ):
-
-                        feature_order = list(
-                            url_features.columns
-                        )
-
-                    elif isinstance(
-                        url_features,
-                        (list, tuple)
-                    ):
-
-                        feature_order = list(
-                            url_features
-                        )
-
-                    # =========================
-                    # MATCH MODEL FEATURES
-                    # =========================
-
-                    if feature_order:
-
-                        missing_features = [
-                            feature
-                            for feature in feature_order
-                            if feature not in features_df.columns
-                        ]
-
-                        if not missing_features:
-
-                            features_df = (
-                                features_df[
-                                    feature_order
-                                ]
-                            )
-
-                    # =========================
-                    # PREDICTION
-                    # =========================
-
-                    prediction = (
-                        url_model.predict(
-                            features_df
-                        )[0]
+                    url_feats = extract_url_features(
+                        url
                     )
 
-                    probability = None
+                    # ------------------------------------------------
+                    # IMPORTANT:
+                    # PhiUSIIL model:
+                    # Index 1 = SAFE probability
+                    # Therefore:
+                    # Threat = 1 - Safe
+                    # ------------------------------------------------
 
-                    # =========================
-                    # PROBABILITY
-                    # =========================
-
-                    if hasattr(
-                        url_model,
-                        "predict_proba"
-                    ):
-
-                        probabilities = (
-                            url_model.predict_proba(
-                                features_df
-                            )[0]
-                        )
-
-                        classes = list(
-                            url_model.classes_
-                        )
-
-                        if prediction in classes:
-
-                            prediction_index = (
-                                classes.index(
-                                    prediction
-                                )
-                            )
-
-                            probability = (
-                                probabilities[
-                                    prediction_index
-                                ] * 100
-                            )
-
-                    dangerous = (
-                        is_dangerous_prediction(
-                            prediction
-                        )
+                    safe_prob = float(
+                        url_model.predict_proba(
+                            url_feats
+                        )[0][1]
                     )
 
-                    # =========================
-                    # RESULT
-                    # =========================
-
-                    st.divider()
-
-                    st.subheader(
-                        "📊 Analysis Result"
+                    u_threat_prob = (
+                        1.0 - safe_prob
                     )
 
-                    if dangerous:
-
-                        if probability is not None:
-
-                            st.error(
-                                f"""
-                                🚨 DANGEROUS
-
-                                Model Confidence:
-                                {probability:.2f}%
-                                """
-                            )
-
-                        else:
-
-                            st.error(
-                                "🚨 DANGEROUS"
-                            )
-
-                    else:
-
-                        if probability is not None:
-
-                            st.success(
-                                f"""
-                                ✅ SAFE
-
-                                Model Confidence:
-                                {probability:.2f}%
-                                """
-                            )
-
-                        else:
-
-                            st.success(
-                                "✅ SAFE"
-                            )
-
-                    # =========================
-                    # URL DETAILS
-                    # =========================
-
-                    st.write(
-                        "### 🔎 URL Details"
-                    )
-
-                    col1, col2, col3 = (
-                        st.columns(3)
-                    )
-
-                    with col1:
-
-                        st.metric(
-                            "URL Length",
-                            int(
-                                features_df[
-                                    "url_length"
-                                ].iloc[0]
-                            )
-                        )
-
-                    with col2:
-
-                        https_value = (
-                            features_df[
-                                "uses_https"
-                            ].iloc[0]
-                        )
-
-                        st.metric(
-                            "HTTPS",
-                            "Yes"
-                            if https_value
-                            else "No"
-                        )
-
-                    with col3:
-
-                        ip_value = (
-                            features_df[
-                                "is_ip_address"
-                            ].iloc[0]
-                        )
-
-                        st.metric(
-                            "IP Address",
-                            "Yes"
-                            if ip_value
-                            else "No"
-                        )
+                    status_note = "ML Analyzed"
 
                 except Exception as e:
 
-                    st.error(
-                        "❌ Error while predicting URL."
+                    u_threat_prob = 1.0
+
+                    status_note = (
+                        f"URL analysis error: {e}"
                     )
 
-                    with st.expander(
-                        "Technical details"
-                    ):
+            # ------------------------------------------------
+            # Save result
+            # ------------------------------------------------
 
-                        st.code(
-                            str(e)
-                        )
+            url_results.append(
+                {
+                    "url": url,
+                    "prob": u_threat_prob,
+                    "note": status_note
+                }
+            )
+
+            # ------------------------------------------------
+            # Highest URL risk
+            # ------------------------------------------------
+
+            if u_threat_prob > max_url_prob:
+
+                max_url_prob = u_threat_prob
 
 
-# ============================================================
-# MESSAGE SCANNER
-# ============================================================
+        # ====================================================
+        # 3. OVERALL RISK
+        # ====================================================
 
-with message_tab:
+        if extracted_urls:
 
-    st.markdown(
-        """
-        <div class="scanner-card">
-
-            <h2>
-                💬 Message Threat Detection
-            </h2>
-
-            <p style="color:#64748b;">
-                Paste an SMS, email message or text
-                to check for spam or suspicious content.
-            </p>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.write("")
-
-    message = st.text_area(
-        "Enter message",
-        key="message_input",
-        height=180,
-        placeholder="Paste your SMS or message here..."
-    )
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        analyze_message = st.button(
-            "🔍 Analyze Message",
-            key="analyze_message_button",
-            use_container_width=True,
-            type="primary"
-        )
-
-    with col2:
-
-        clear_message = st.button(
-            "🗑️ Clear",
-            key="clear_message_button",
-            use_container_width=True
-        )
-
-    if clear_message:
-
-        st.session_state.pop(
-            "message_input",
-            None
-        )
-
-        st.rerun()
-
-    if analyze_message:
-
-        if not message.strip():
-
-            st.warning(
-                "⚠️ Please enter a message first."
+            combined_risk_prob = max(
+                msg_prob,
+                max_url_prob
             )
 
         else:
 
-            try:
+            combined_risk_prob = msg_prob
 
-                # =========================
-                # VECTORIZE
-                # =========================
 
-                message_vector = (
-                    message_vectorizer.transform(
-                        [message]
-                    )
-                )
+        risk_score_pct = int(
+            combined_risk_prob * 100
+        )
 
-                # =========================
-                # PREDICTION
-                # =========================
 
-                prediction = (
-                    message_model.predict(
-                        message_vector
-                    )[0]
-                )
+        # ====================================================
+        # 4. ANALYSIS RESULTS
+        # ====================================================
 
-                probability = None
+        st.subheader(
+            "📊 Analysis Results"
+        )
 
-                # =========================
-                # PROBABILITY
-                # =========================
+        col1, col2, col3 = st.columns(3)
 
-                if hasattr(
-                    message_model,
-                    "predict_proba"
-                ):
 
-                    probabilities = (
-                        message_model.predict_proba(
-                            message_vector
-                        )[0]
-                    )
+        with col1:
 
-                    classes = list(
-                        message_model.classes_
-                    )
+            st.metric(
+                "SMS Text Threat Probability",
+                f"{int(msg_prob * 100)}%"
+            )
 
-                    if prediction in classes:
 
-                        prediction_index = (
-                            classes.index(
-                                prediction
-                            )
-                        )
+        with col2:
 
-                        probability = (
-                            probabilities[
-                                prediction_index
-                            ] * 100
-                        )
+            st.metric(
+                "Detected URLs",
+                len(extracted_urls)
+            )
 
-                dangerous = (
-                    is_dangerous_prediction(
-                        prediction
-                    )
-                )
 
-                # =========================
-                # RESULT
-                # =========================
+        with col3:
 
-                st.divider()
+            st.metric(
+                "Overall Risk Score",
+                f"{risk_score_pct}%"
+            )
 
-                st.subheader(
-                    "📊 Analysis Result"
-                )
 
-                if dangerous:
+        # ====================================================
+        # 5. RISK BANNER
+        # ====================================================
 
-                    st.error(
-                        "🚨 SPAM / SUSPICIOUS MESSAGE"
-                    )
+        if risk_score_pct >= 70:
 
-                    if probability is not None:
+            st.error(
+                f"🚨 HIGH RISK THREAT DETECTED "
+                f"(Risk Score: {risk_score_pct}%)"
+            )
 
-                        st.metric(
-                            "Model Confidence",
-                            f"{probability:.2f}%"
-                        )
+        elif risk_score_pct >= 40:
 
-                else:
+            st.warning(
+                f"⚠️ MODERATE RISK DETECTED "
+                f"(Risk Score: {risk_score_pct}%)"
+            )
 
-                    st.success(
-                        "✅ SAFE MESSAGE"
-                    )
+        else:
 
-                    if probability is not None:
+            st.success(
+                f"✅ SAFE MESSAGE "
+                f"(Risk Score: {risk_score_pct}%)"
+            )
 
-                        st.metric(
-                            "Model Confidence",
-                            f"{probability:.2f}%"
-                        )
 
-                # =========================
-                # MESSAGE
-                # =========================
+        st.divider()
+
+
+        # ====================================================
+        # 6. DETAILED BREAKDOWN
+        # ====================================================
+
+        left_col, right_col = st.columns(2)
+
+
+        # ====================================================
+        # TEXT ANALYSIS
+        # ====================================================
+
+        with left_col:
+
+            st.markdown(
+                "### 💬 Text Analysis"
+            )
+
+            if msg_pred == 1:
 
                 st.write(
-                    "### 📝 Message Analyzed"
+                    "**Classification:** 🚨 Spam/Threat"
                 )
+
+                confidence = msg_prob
+
+            else:
+
+                st.write(
+                    "**Classification:** ✅ Safe"
+                )
+
+                confidence = 1 - msg_prob
+
+
+            st.write(
+                f"**Confidence:** {confidence:.2%}"
+            )
+
+
+        # ====================================================
+        # URL ANALYSIS
+        # ====================================================
+
+        with right_col:
+
+            st.markdown(
+                "### 🔗 URL Analysis"
+            )
+
+            if not extracted_urls:
 
                 st.info(
-                    message
+                    "No URLs found in the provided text."
                 )
 
-            except Exception as e:
+            else:
 
-                st.error(
-                    "❌ Error while analyzing the message."
-                )
+                for res in url_results:
 
-                with st.expander(
-                    "Technical details"
-                ):
+                    if res["prob"] > 0.5:
 
-                    st.code(
-                        str(e)
+                        status = "🚨 THREAT"
+
+                    else:
+
+                        status = "✅ SAFE"
+
+
+                    st.write(
+                        f"**URL:** `{res['url']}`"
                     )
 
+                    st.write(
+                        f"**Status:** {status}"
+                    )
 
-# ============================================================
-# FOOTER
-# ============================================================
+                    st.write(
+                        f"**Risk:** "
+                        f"{res['prob']:.2%}"
+                    )
 
-st.divider()
+                    st.caption(
+                        res["note"]
+                    )
 
-st.markdown(
-    """
-    <div class="footer">
-
-        🛡️ <strong>SafeLink AI</strong>
-
-        <br>
-
-        Machine Learning based
-        URL & Message Security Analysis
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+                    st.divider()
