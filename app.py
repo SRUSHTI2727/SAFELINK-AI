@@ -39,7 +39,7 @@ if not st.session_state.show_scanner:
         <style>
         .welcome-container {
             text-align: center;
-            padding: 15px 20px 20px 20px;
+            padding: 15px 15px 15px 15px;
         }
 
         .welcome-shield {
