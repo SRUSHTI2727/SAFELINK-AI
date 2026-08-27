@@ -25,19 +25,22 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+
+# ============================================================
+# MODEL FILE PATHS
+# ============================================================
+
 BASE_DIR = Path(__file__).resolve().parent
-MODELS_DIR = BASE_DIR / "models"
 
+# Models are uploaded directly in the main GitHub folder
+MESSAGE_MODEL_FILE = BASE_DIR / "message_model.pkl"
+MESSAGE_VECTORIZER_FILE = BASE_DIR / "message_vectorizer.pkl"
+URL_FEATURES_FILE = BASE_DIR / "url_features.pkl"
 
-# ============================================================
-# FILE PATHS
-# ============================================================
-
-MESSAGE_MODEL_FILE = MODELS_DIR / "message_model.pkl"
-MESSAGE_VECTORIZER_FILE = MODELS_DIR / "message_vectorizer.pkl"
-URL_FEATURES_FILE = MODELS_DIR / "url_features.pkl"
-
+# Embedded URL model
 EMBEDDED_URL_MODEL_FILE = BASE_DIR / "embedded_url_model.txt"
+
+
 
 
 
