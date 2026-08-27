@@ -40,6 +40,7 @@ URL_FEATURES_FILE = MODELS_DIR / "url_features.pkl"
 EMBEDDED_URL_MODEL_FILE = BASE_DIR / "embedded_url_model.txt"
 
 
+
 # ============================================================
 # WELCOME PAGE
 # ============================================================
@@ -50,157 +51,79 @@ if "show_scanner" not in st.session_state:
 
 if not st.session_state.show_scanner:
 
-    st.markdown(
-        """
-        <style>
+    st.title("🛡️ SafeLink AI")
 
-        .welcome-container {
-            text-align: center;
-            padding: 20px 15px;
-        }
+    st.header("Welcome to SafeLink AI")
 
-        .welcome-shield {
-            font-size: 70px;
-            margin-bottom: 10px;
-        }
+    st.subheader("AI-Powered Security Scanner")
 
-        .welcome-title {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-
-        .welcome-subtitle {
-            font-size: 27px;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        .welcome-description {
-            font-size: 18px;
-            line-height: 1.6;
-            max-width: 700px;
-            margin: auto;
-        }
-
-        .feature-card {
-            padding: 22px 15px;
-            border-radius: 16px;
-            border: 1px solid rgba(128,128,128,0.25);
-            min-height: 115px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .feature-icon {
-            font-size: 32px;
-        }
-
-        .feature-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-top: 8px;
-        }
-
-        div.stButton > button {
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            padding: 12px 35px;
-        }
-
-        </style>
-        """,
-        unsafe_allow_html=True
+    st.write(
+        "Analyze SMS messages and URLs using machine learning "
+        "to identify potential spam, phishing and security threats."
     )
 
-    st.markdown(
-        """
-        <div class="welcome-container">
+    st.divider()
 
-            <div class="welcome-shield">🛡️</div>
-
-            <div class="welcome-title">
-                SafeLink AI
-            </div>
-
-            <div class="welcome-subtitle">
-                Welcome to SafeLink AI
-            </div>
-
-            <div class="welcome-subtitle">
-                AI-Powered Security Scanner
-            </div>
-
-            <div class="welcome-description">
-                Analyze SMS messages and URLs using machine learning
-                to identify potential spam, phishing and security threats.
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.write("")
+    # ========================================================
+    # FEATURES
+    # ========================================================
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown(
-            """
-            <div class="feature-card">
-                <div class="feature-icon">🔗</div>
-                <div class="feature-title">
-                    URL Detection
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
+
+        st.markdown("### 🔗 URL Detection")
+
+        st.write(
+            "Analyze URLs for suspicious patterns "
+            "and potential security threats."
         )
 
     with col2:
-        st.markdown(
-            """
-            <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <div class="feature-title">
-                    Message Detection
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
+
+        st.markdown("### 💬 Message Detection")
+
+        st.write(
+            "Analyze SMS and messages to identify "
+            "possible spam or harmful content."
         )
 
     with col3:
-        st.markdown(
-            """
-            <div class="feature-card">
-                <div class="feature-icon">🧠</div>
-                <div class="feature-title">
-                    AI Risk Analysis
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
+
+        st.markdown("### 🧠 AI Risk Analysis")
+
+        st.write(
+            "Combine message and URL analysis "
+            "to calculate an overall risk score."
         )
 
     st.write("")
 
-    button_col1, button_col2, button_col3 = st.columns([1, 1, 1])
+    st.divider()
+
+    # ========================================================
+    # CONTINUE BUTTON
+    # ========================================================
+
+    button_col1, button_col2, button_col3 = st.columns(
+        [1, 1, 1]
+    )
 
     with button_col2:
 
         if st.button(
-            "CONTINUE",
+            "🚀 CONTINUE",
             type="primary",
             use_container_width=True
         ):
 
             st.session_state.show_scanner = True
+
             st.rerun()
 
     st.stop()
+
+
 
 
 # ============================================================
