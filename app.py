@@ -623,315 +623,315 @@ user_input = st.text_area(
     height=140,
     placeholder=(
         "Example: Claim your $1000 prize now at "
-        "http://free-prize.xyz/claim"
-    )
-)
-
-
-# ============================================================
-# ANALYZE BUTTON
-# ============================================================
-
-if st.button(
-    "🔍 Analyze Risk",
-    type="primary",
-    use_container_width=True
-):
-
-    if not user_input.strip():
-
-        st.warning(
-            "⚠️ Please enter a message to analyze."
-        )
-
-    else:
-
-        # ====================================================
-        # 1. SMS TEXT ANALYSIS
-        # ====================================================
-
-        try:
-
-            msg_tfidf = message_vectorizer.transform(
-                [user_input]
-            )
-
-            msg_probabilities = (
-                message_model.predict_proba(
-                    msg_tfidf
-                )[0]
-            )
-
-            msg_pred = message_model.predict(
-                msg_tfidf
-            )[0]
-
-            # Assuming class 1 = Spam / Threat
-            msg_prob = float(
-                msg_probabilities[1]
-            )
-
-        except Exception as e:
-
-            st.error(
-                f"❌ SMS model error: {e}"
-            )
-
-            st.stop()
-
-
-        # ====================================================
-        # 2. URL ANALYSIS
-        # ====================================================
-
-        extracted_urls = extract_urls_from_text(
-            user_input
-        )
-
-        url_results = []
-
-        max_url_prob = 0.0
-
-
-        for url in extracted_urls:
-
-            # ------------------------------------------------
-            # WHITELIST CHECK
-            # ------------------------------------------------
-
-            if is_whitelisted(url):
-
-                u_threat_prob = 0.0
-
-                status_note = (
-                    "Verified Whitelisted Domain"
-                )
-
-            else:
-
-                try:
-
-                    url_feats = extract_url_features(
-                        url
-                    )
-
-                    # ------------------------------------------------
-                    # IMPORTANT:
-                    # PhiUSIIL model:
-                    # Index 1 = SAFE probability
-                    # Therefore:
-                    # Threat = 1 - Safe
-                    # ------------------------------------------------
-
-                    safe_prob = float(
-                        url_model.predict_proba(
-                            url_feats
-                        )[0][1]
-                    )
-
-                    u_threat_prob = (
-                        1.0 - safe_prob
-                    )
-
-                    status_note = "ML Analyzed"
-
-                except Exception as e:
-
-                    u_threat_prob = 1.0
-
-                    status_note = (
-                        f"URL analysis error: {e}"
-                    )
-
-            # ------------------------------------------------
-            # Save result
-            # ------------------------------------------------
-
-            url_results.append(
-                {
-                    "url": url,
-                    "prob": u_threat_prob,
-                    "note": status_note
-                }
-            )
-
-            # ------------------------------------------------
-            # Highest URL risk
-            # ------------------------------------------------
-
-            if u_threat_prob > max_url_prob:
-
-                max_url_prob = u_threat_prob
-
-
-        # ====================================================
-        # 3. OVERALL RISK
-        # ====================================================
-
-        if extracted_urls:
-
-            combined_risk_prob = max(
-                msg_prob,
-                max_url_prob
-            )
-
-        else:
-
-            combined_risk_prob = msg_prob
-
-
-        risk_score_pct = int(
-            combined_risk_prob * 100
-        )
-
-
-        # ====================================================
-        # 4. ANALYSIS RESULTS
-        # ====================================================
-
-        st.subheader(
-            "📊 Analysis Results"
-        )
-
-        col1, col2, col3 = st.columns(3)
-
-
-        with col1:
-
-            st.metric(
-                "SMS Text Threat Probability",
-                f"{int(msg_prob * 100)}%"
-            )
-
-
-        with col2:
-
-            st.metric(
-                "Detected URLs",
-                len(extracted_urls)
-            )
-
-
-        with col3:
-
-            st.metric(
-                "Overall Risk Score",
-                f"{risk_score_pct}%"
-            )
-
-
-        # ====================================================
-        # 5. RISK BANNER
-        # ====================================================
-
-        if risk_score_pct >= 70:
-
-            st.error(
-                f"🚨 HIGH RISK THREAT DETECTED "
-                f"(Risk Score: {risk_score_pct}%)"
-            )
-
-        elif risk_score_pct >= 40:
-
-            st.warning(
-                f"⚠️ MODERATE RISK DETECTED "
-                f"(Risk Score: {risk_score_pct}%)"
-            )
-
-        else:
-
-            st.success(
-                f"✅ SAFE MESSAGE "
-                f"(Risk Score: {risk_score_pct}%)"
-            )
-
-
-        st.divider()
-
-
-        # ====================================================
-        # 6. DETAILED BREAKDOWN
-        # ====================================================
-
-        left_col, right_col = st.columns(2)
-
-
-        # ====================================================
-        # TEXT ANALYSIS
-        # ====================================================
-
-        with left_col:
-
-            st.markdown(
-                "### 💬 Text Analysis"
-            )
-
-            if msg_pred == 1:
-
-                st.write(
-                    "**Classification:** 🚨 Spam/Threat"
-                )
-
-                confidence = msg_prob
-
-            else:
-
-                st.write(
-                    "**Classification:** ✅ Safe"
-                )
-
-                confidence = 1 - msg_prob
-
-
-            st.write(
-                f"**Confidence:** {confidence:.2%}"
-            )
-
-
-        # ====================================================
-        # URL ANALYSIS
-        # ====================================================
-
-        with right_col:
-
-            st.markdown(
-                "### 🔗 URL Analysis"
-            )
-
-            if not extracted_urls:
-
-                st.info(
-                    "No URLs found in the provided text."
-                )
-
-            else:
-
-                for res in url_results:
-
-                    if res["prob"] > 0.5:
-
-                        status = "🚨 THREAT"
-
-                    else:
-
-                        status = "✅ SAFE"
-
-
-                    st.write(
-                        f"**URL:** `{res['url']}`"
-                    )
-
-                    st.write(
-                        f"**Status:** {status}"
-                    )
-
-                    st.write(
-                        f"**Risk:** "
-                        f"{res['prob']:.2%}"
-                    )
-
-                    st.caption(
-                        res["note"]
-                    )
-
-                    st.divider()
+        "http://free-prize.xyz/claim" 
+    ) 
+) 
+ 
+ 
+# ============================================================ 
+# ANALYZE BUTTON 
+# ============================================================ 
+ 
+if st.button( 
+    "🔍 Analyze Risk", 
+    type="primary", 
+    use_container_width=True 
+): 
+ 
+    if not user_input.strip(): 
+ 
+        st.warning( 
+            "⚠️ Please enter a message to analyze." 
+        ) 
+ 
+    else: 
+ 
+        # ==================================================== 
+        # 1. SMS TEXT ANALYSIS 
+        # ==================================================== 
+ 
+        try: 
+ 
+            msg_tfidf = message_vectorizer.transform( 
+                [user_input] 
+            ) 
+ 
+            msg_probabilities = ( 
+                message_model.predict_proba( 
+                    msg_tfidf 
+                )[0] 
+            ) 
+ 
+            msg_pred = message_model.predict( 
+                msg_tfidf 
+            )[0] 
+ 
+            # Assuming class 1 = Spam / Threat 
+            msg_prob = float( 
+                msg_probabilities[1] 
+            ) 
+ 
+        except Exception as e: 
+ 
+            st.error( 
+                f"❌ SMS model error: {e}" 
+            ) 
+ 
+            st.stop() 
+ 
+ 
+        # ==================================================== 
+        # 2. URL ANALYSIS 
+        # ==================================================== 
+ 
+        extracted_urls = extract_urls_from_text( 
+            user_input 
+        ) 
+ 
+        url_results = [] 
+ 
+        max_url_prob = 0.0 
+ 
+ 
+        for url in extracted_urls: 
+ 
+            # ------------------------------------------------ 
+            # WHITELIST CHECK 
+            # ------------------------------------------------ 
+ 
+            if is_whitelisted(url): 
+ 
+                u_threat_prob = 0.0 
+ 
+                status_note = ( 
+                    "Verified Whitelisted Domain" 
+                ) 
+ 
+            else: 
+ 
+                try: 
+ 
+                    url_feats = extract_url_features( 
+                        url 
+                    ) 
+ 
+                    # ------------------------------------------------ 
+                    # IMPORTANT: 
+                    # PhiUSIIL model: 
+                    # Index 1 = SAFE probability 
+                    # Therefore: 
+                    # Threat = 1 - Safe 
+                    # ------------------------------------------------ 
+ 
+                    safe_prob = float( 
+                        url_model.predict_proba( 
+                            url_feats 
+                        )[0][1] 
+                    ) 
+ 
+                    u_threat_prob = ( 
+                        1.0 - safe_prob 
+                    ) 
+ 
+                    status_note = "ML Analyzed" 
+ 
+                except Exception as e: 
+ 
+                    u_threat_prob = 1.0 
+ 
+                    status_note = ( 
+                        f"URL analysis error: {e}" 
+                    ) 
+ 
+            # ------------------------------------------------ 
+            # Save result 
+            # ------------------------------------------------ 
+ 
+            url_results.append( 
+                { 
+                    "url": url, 
+                    "prob": u_threat_prob, 
+                    "note": status_note 
+                } 
+            ) 
+ 
+            # ------------------------------------------------ 
+            # Highest URL risk 
+            # ------------------------------------------------ 
+ 
+            if u_threat_prob > max_url_prob: 
+ 
+                max_url_prob = u_threat_prob 
+ 
+ 
+        # ==================================================== 
+        # 3. OVERALL RISK 
+        # ==================================================== 
+ 
+        if extracted_urls: 
+ 
+            combined_risk_prob = max( 
+                msg_prob, 
+                max_url_prob 
+            ) 
+ 
+        else: 
+ 
+            combined_risk_prob = msg_prob 
+ 
+ 
+        risk_score_pct = int( 
+            combined_risk_prob * 100 
+        ) 
+ 
+ 
+        # ==================================================== 
+        # 4. ANALYSIS RESULTS 
+        # ==================================================== 
+ 
+        st.subheader( 
+            "📊 Analysis Results" 
+        ) 
+ 
+        col1, col2, col3 = st.columns(3) 
+ 
+ 
+        with col1: 
+ 
+            st.metric( 
+                "SMS Text Threat Probability", 
+                f"{int(msg_prob * 100)}%" 
+            ) 
+ 
+ 
+        with col2: 
+ 
+            st.metric( 
+                "Detected URLs", 
+                len(extracted_urls) 
+            ) 
+ 
+ 
+        with col3: 
+ 
+            st.metric( 
+                "Overall Risk Score", 
+                f"{risk_score_pct}%" 
+            ) 
+ 
+ 
+        # ==================================================== 
+        # 5. RISK BANNER 
+        # ==================================================== 
+ 
+        if risk_score_pct >= 70: 
+ 
+            st.error( 
+                f"🚨 HIGH RISK THREAT DETECTED " 
+                f"(Risk Score: {risk_score_pct}%)" 
+            ) 
+ 
+        elif risk_score_pct >= 40: 
+ 
+            st.warning( 
+                f"⚠️ MODERATE RISK DETECTED " 
+                f"(Risk Score: {risk_score_pct}%)" 
+            ) 
+ 
+        else: 
+ 
+            st.success( 
+                f"✅ SAFE MESSAGE " 
+                f"(Risk Score: {risk_score_pct}%)" 
+            ) 
+ 
+ 
+        st.divider() 
+ 
+ 
+        # ==================================================== 
+        # 6. DETAILED BREAKDOWN 
+        # ==================================================== 
+ 
+        left_col, right_col = st.columns(2) 
+ 
+ 
+        # ==================================================== 
+        # TEXT ANALYSIS 
+        # ==================================================== 
+ 
+        with left_col: 
+ 
+            st.markdown( 
+                "### 💬 Text Analysis" 
+            ) 
+ 
+            if msg_pred == 1: 
+ 
+                st.write( 
+                    "**Classification:** 🚨 Spam/Threat" 
+                ) 
+ 
+                confidence = msg_prob 
+ 
+            else: 
+ 
+                st.write( 
+                    "**Classification:** ✅ Safe" 
+                ) 
+ 
+                confidence = 1 - msg_prob 
+ 
+ 
+            st.write( 
+                f"**Confidence:** {confidence:.2%}" 
+            ) 
+ 
+ 
+        # ==================================================== 
+        # URL ANALYSIS 
+        # ==================================================== 
+ 
+        with right_col: 
+ 
+            st.markdown( 
+                "### 🔗 URL Analysis" 
+            ) 
+ 
+            if not extracted_urls: 
+ 
+                st.info( 
+                    "No URLs found in the provided text." 
+                ) 
+ 
+            else: 
+ 
+                for res in url_results: 
+ 
+                    if res["prob"] > 0.5: 
+ 
+                        status = "🚨 THREAT" 
+ 
+                    else: 
+ 
+                        status = "✅ SAFE" 
+ 
+ 
+                    st.write( 
+                        f"**URL:** `{res['url']}`" 
+                    ) 
+ 
+                    st.write( 
+                        f"**Status:** {status}" 
+                    ) 
+ 
+                    st.write( 
+                        f"**Risk:** " 
+                        f"{res['prob']:.2%}" 
+                    ) 
+ 
+                    st.caption( 
+                        res["note"] 
+                    ) 
+ 
+                    st.divider()                                                                                                                                    
