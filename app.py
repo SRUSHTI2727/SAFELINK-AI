@@ -1417,8 +1417,8 @@ def url_scanner_page():
 
             st.info(
                 "⚠️ Caution: This URL has a risk score of "
-                f"{risk:.0f}% and contains suspicious indicators. "
-                "Even if the final result is shown as Safe, "
+                f"{risk:.0f}% and if it contains suspicious indicators. "
+                "Even if the final result is shown, "
                 "do not blindly trust the URL. Verify its source "
                 "before opening or providing any information."
             )
